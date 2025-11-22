@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     jwt_refresh_expiration_days: int = 7
     
     # CORS
-    cors_origins: List[str] = ["http://localhost:3000"]
+    cors_origins: str = "http://localhost:3000,https://smart-retail-frontend.onrender.com"
     
     # Service URLs
     event_ingestion_url: str = "http://localhost:8001"
