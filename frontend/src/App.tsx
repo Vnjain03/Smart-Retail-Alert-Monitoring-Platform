@@ -20,9 +20,21 @@ const theme = createTheme({
   },
 });
 
-function App() {
+interface ProtectedRouteProps {
+  children: React.ReactElement;
+}
+
+function ProtectedRoute({ children }: ProtectedRouteProps): React.ReactElement {
   const isAuthenticated = !!localStorage.getItem('access_token');
 
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+}
+
+function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -32,19 +44,35 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route
             path="/dashboard"
-            element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />}
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/events"
-            element={isAuthenticated ? <Events /> : <Navigate to="/login" />}
+            element={
+              <ProtectedRoute>
+                <Events />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/alerts"
-            element={isAuthenticated ? <Alerts /> : <Navigate to="/login" />}
+            element={
+              <ProtectedRoute>
+                <Alerts />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/rules"
-            element={isAuthenticated ? <Rules /> : <Navigate to="/login" />}
+            element={
+              <ProtectedRoute>
+                <Rules />
+              </ProtectedRoute>
+            }
           />
           <Route path="/" element={<Navigate to="/dashboard" />} />
         </Routes>
