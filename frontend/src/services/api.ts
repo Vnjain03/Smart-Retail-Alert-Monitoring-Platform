@@ -1,15 +1,13 @@
+@@ -1,24 +1,38 @@
 import axios from 'axios';
 import type { Event, Alert, Rule, User, LoginCredentials, AuthToken } from '../types';
-
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-
 const api = axios.create({
   baseURL: `${API_BASE_URL}/api/v1`,
   headers: {
     'Content-Type': 'application/json',
   },
 });
-
 // Add auth token to requests
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('access_token');
@@ -18,6 +16,20 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+// Handle response errors without auto-redirecting
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Don't redirect on login errors - let the component handle it
+    // Only redirect on 401 if we're not already on the login page
+    if (error.response?.status === 401 && !window.location.pathname.includes('/login')) {
+      localStorage.removeItem('access_token');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
 
 // Auth API
 export const authAPI = {
@@ -34,7 +46,6 @@ export const authAPI = {
     return response.data;
   },
 };
-
 // Events API
 export const eventsAPI = {
   getEvents: async (params?: any) => {
@@ -50,7 +61,6 @@ export const eventsAPI = {
     return response.data;
   },
 };
-
 // Alerts API
 export const alertsAPI = {
   getAlerts: async (params?: any) => {
@@ -66,7 +76,6 @@ export const alertsAPI = {
     return response.data;
   },
 };
-
 // Rules API
 export const rulesAPI = {
   getRules: async (): Promise<Rule[]> => {
@@ -89,5 +98,4 @@ export const rulesAPI = {
     await api.delete(`/rules/${id}`);
   },
 };
-
 export default api;
