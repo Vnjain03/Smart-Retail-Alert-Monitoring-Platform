@@ -47,7 +47,6 @@ build/
 
 # Environment
 .env
-.env.production
 
 # Logs
 logs/
