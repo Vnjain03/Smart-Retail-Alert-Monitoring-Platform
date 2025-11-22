@@ -1,4 +1,3 @@
-@@ -1,24 +1,38 @@
 import axios from 'axios';
 import type { Event, Alert, Rule, User, LoginCredentials, AuthToken } from '../types';
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
