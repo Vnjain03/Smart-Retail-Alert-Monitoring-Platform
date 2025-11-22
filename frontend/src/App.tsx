@@ -21,6 +21,7 @@ const theme = createTheme({
 });
 
 interface ProtectedRouteProps {
+ 
 
   children: React.ReactElement;
 
@@ -124,6 +125,7 @@ function App() {
 
               </ProtectedRoute>
 
+            }
             }
  
 
