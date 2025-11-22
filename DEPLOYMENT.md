@@ -44,12 +44,37 @@ docker-compose down
 
 ### Option 1: Render.com (Free Tier - Recommended for Demo)
 
+#### Automatic Deployment (Using render.yaml)
+
 1. **Sign up** at https://render.com
-2. **Create a new Web Service** for each backend service
-3. **Environment Variables**: Set in Render dashboard
-4. **Deploy Frontend** as a Static Site
-5. **Add PostgreSQL** database (free tier) instead of Cosmos DB
-6. **Configure** environment variables
+2. **Connect your GitHub repository**
+3. **Click "New" -> "Blueprint"**
+4. **Select your repository** - Render will detect the `render.yaml` file
+5. **Review the services** that will be created
+6. **Click "Apply"** to create all services
+
+#### Manual Frontend Deployment
+
+If deploying the frontend manually as a Static Site:
+
+1. **Create a new Static Site** on Render
+2. **Configure build settings**:
+   - **Build Command**: `cd frontend && npm install && npm run build`
+   - **Publish Directory**: `frontend/build`
+3. **Add Rewrite Rule** (if not using render.yaml):
+   - Source: `/*`
+   - Destination: `/index.html`
+   - Action: `Rewrite`
+
+The `_redirects` file in `frontend/public/` will automatically handle SPA routing.
+
+#### Backend Services
+
+For each backend service:
+1. **Create a new Web Service**
+2. **Select Docker** as environment
+3. **Set Dockerfile path** (e.g., `./services/api-gateway/Dockerfile`)
+4. **Configure environment variables** as needed
 
 **Estimated Cost**: Free tier available
 

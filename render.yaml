@@ -1,0 +1,71 @@
+services:
+  # Frontend Static Site
+  - type: web
+    name: smart-retail-frontend
+    env: static
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: ./frontend/build
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+  # API Gateway
+  - type: web
+    name: smart-retail-api-gateway
+    env: docker
+    dockerfilePath: ./services/api-gateway/Dockerfile
+    dockerContext: ./services/api-gateway
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: ENVIRONMENT
+        value: production
+
+  # Event Ingestion Service
+  - type: web
+    name: smart-retail-event-ingestion
+    env: docker
+    dockerfilePath: ./services/event-ingestion/Dockerfile
+    dockerContext: ./services/event-ingestion
+    envVars:
+      - key: PORT
+        value: 8001
+      - key: ENVIRONMENT
+        value: production
+
+  # Alert Rules Engine
+  - type: web
+    name: smart-retail-alert-engine
+    env: docker
+    dockerfilePath: ./services/alert-rules-engine/Dockerfile
+    dockerContext: ./services/alert-rules-engine
+    envVars:
+      - key: PORT
+        value: 8002
+      - key: ENVIRONMENT
+        value: production
+
+  # Query Analytics Service
+  - type: web
+    name: smart-retail-query-analytics
+    env: docker
+    dockerfilePath: ./services/query-analytics/Dockerfile
+    dockerContext: ./services/query-analytics
+    envVars:
+      - key: PORT
+        value: 8003
+      - key: ENVIRONMENT
+        value: production
+
+  # User Management Service
+  - type: web
+    name: smart-retail-user-management
+    env: docker
+    dockerfilePath: ./services/user-management/Dockerfile
+    dockerContext: ./services/user-management
+    envVars:
+      - key: PORT
+        value: 8004
+      - key: ENVIRONMENT
+        value: production
