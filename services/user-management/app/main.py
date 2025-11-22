@@ -1,44 +1,83 @@
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, EmailStr
-from passlib.context import CryptContext
-from jose import jwt
-from datetime import datetime, timedelta
+from pydantic import BaseModel
+import time
+import hashlib
 
 app = FastAPI(title="User Management Service")
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-SECRET_KEY = "your-secret-key-change-in-production"
-ALGORITHM = "HS256"
+# Simple in-memory storage (for demo)
+users_db = {}
 
 class UserCreate(BaseModel):
-    email: EmailStr
+    email: str
     password: str
+    full_name: str = "User"
+    role: str = "user"
 
 class UserLogin(BaseModel):
-    email: EmailStr
+    email: str
     password: str
+
+def hash_password(password: str) -> str:
+    """Simple password hashing for demo"""
+    return hashlib.sha256(password.encode()).hexdigest()
 
 @app.get("/health")
 async def health():
-    return {"status": "healthy"}
+    return {"status": "healthy", "service": "user-management"}
 
 @app.post("/auth/register")
 async def register(user: UserCreate):
-    hashed_password = pwd_context.hash(user.password)
-    return {
-        "id": "user-123",
+    # Check if user exists
+    if user.email in users_db:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    # Store user with hashed password
+    users_db[user.email] = {
+        "id": f"user-{len(users_db) + 1}",
         "email": user.email,
-        "role": "user",
-        "created_at": int(datetime.now().timestamp())
+        "password": hash_password(user.password),
+        "full_name": user.full_name,
+        "role": user.role,
+        "created_at": int(time.time())
+    }
+    
+    # Return user without password
+    return {
+        "id": users_db[user.email]["id"],
+        "email": user.email,
+        "full_name": user.full_name,
+        "role": user.role,
+        "is_active": True,
+        "created_at": users_db[user.email]["created_at"]
     }
 
 @app.post("/auth/login")
 async def login(credentials: UserLogin):
-    # Demo: accept any login
-    token_data = {"sub": credentials.email, "exp": datetime.utcnow() + timedelta(hours=1)}
-    access_token = jwt.encode(token_data, SECRET_KEY, algorithm=ALGORITHM)
-    return {"access_token": access_token, "token_type": "bearer", "expires_in": 3600}
+    # Check if user exists
+    if credentials.email not in users_db:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    user = users_db[credentials.email]
+    
+    # Verify password
+    if user["password"] != hash_password(credentials.password):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    # Return simple token
+    return {
+        "access_token": f"token-{user['id']}-{int(time.time())}",
+        "token_type": "bearer",
+        "expires_in": 3600
+    }
 
 @app.get("/auth/me")
-async def get_current_user():
-    return {"id": "user-123", "email": "demo@example.com", "role": "admin"}
+async def get_me():
+    return {
+        "id": "user-1",
+        "email": "demo@example.com",
+        "full_name": "Demo User",
+        "role": "admin",
+        "is_active": True,
+        "created_at": int(time.time())
+    }
