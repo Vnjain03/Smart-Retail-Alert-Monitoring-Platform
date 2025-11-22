@@ -7,8 +7,9 @@ import {
   Typography,
   Box,
   Alert,
+  Link as MuiLink,
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { authAPI } from '../services/api';
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -93,6 +94,14 @@ const Login: React.FC = () => {
               Login
             </Button>
           </form>
+          <Box sx={{ mt: 2, textAlign: 'center' }}>
+            <Typography variant="body2">
+              Don't have an account?{' '}
+              <MuiLink component={Link} to="/register" underline="hover">
+                Register here
+              </MuiLink>
+            </Typography>
+          </Box>
         </Paper>
       </Box>
     </Container>
